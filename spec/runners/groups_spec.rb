@@ -4,7 +4,8 @@ require 'spec_helper'
 
 RSpec.describe Legion::Extensions::Identity::Ledger::Runners::Groups do
   let(:principal_id) do
-    Legion::Data::DB[:principals].insert(
+    Legion::Data::DB[:identity_principals].insert(
+      uuid:           SecureRandom.uuid,
       canonical_name: 'miverso2',
       kind:           'human',
       active:         true,

@@ -26,12 +26,12 @@ RSpec.describe Legion::Extensions::Identity::Ledger::Runners::Identity do
       expect(provider[:name]).to eq('kerberos')
       expect(provider[:provider_type]).to eq('authenticate')
 
-      principal = Legion::Data::DB[:principals].first
+      principal = Legion::Data::DB[:identity_principals].first
       expect(principal[:canonical_name]).to eq('miverso2')
       expect(principal[:kind]).to eq('human')
 
       identity = Legion::Data::DB[:identities].first
-      expect(identity[:provider_identity]).to eq('miverso2@MS.DS.UHC.COM')
+      expect(identity[:provider_identity_key]).to eq('miverso2@MS.DS.UHC.COM')
       expect(identity[:active]).to be(true)
     end
 
@@ -47,7 +47,7 @@ RSpec.describe Legion::Extensions::Identity::Ledger::Runners::Identity do
       result = described_class.write_identity(payload)
       expect(result).to eq({ result: :ok })
       expect(Legion::Data::DB[:identity_providers].count).to eq(1)
-      expect(Legion::Data::DB[:principals].count).to eq(1)
+      expect(Legion::Data::DB[:identity_principals].count).to eq(1)
     end
 
     it 'uses default values for optional fields' do
@@ -63,7 +63,7 @@ RSpec.describe Legion::Extensions::Identity::Ledger::Runners::Identity do
       expect(provider[:provider_type]).to eq('authenticate')
       expect(provider[:facing]).to eq('both')
 
-      principal = Legion::Data::DB[:principals].first
+      principal = Legion::Data::DB[:identity_principals].first
       expect(principal[:kind]).to eq('human')
     end
 

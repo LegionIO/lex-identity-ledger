@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module Legion
   module Extensions
     module Identity
@@ -28,6 +30,7 @@ module Legion
 
             def upsert_group(payload, now)
               row = {
+                uuid:        SecureRandom.uuid,
                 name:        payload[:group_name].to_s,
                 source:      (payload[:source] || 'ldap').to_s,
                 description: payload[:description],
@@ -50,6 +53,7 @@ module Legion
 
             def upsert_membership(payload, group_id, now)
               row = {
+                uuid:          SecureRandom.uuid,
                 principal_id:  payload[:principal_id],
                 group_id:      group_id,
                 status:        (payload[:membership_status] || 'active').to_s,
