@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'securerandom'
+
 module Legion
   module Extensions
     module Identity
@@ -31,6 +33,7 @@ module Legion
 
             def upsert_provider(payload, now)
               row = {
+                uuid:          SecureRandom.uuid,
                 name:          payload[:source].to_s,
                 provider_type: (payload[:provider_type] || 'authenticate').to_s,
                 facing:        (payload[:facing] || 'both').to_s,
@@ -55,6 +58,7 @@ module Legion
 
             def upsert_principal(payload, now)
               row = {
+                uuid:           SecureRandom.uuid,
                 canonical_name: payload[:canonical_name].to_s,
                 kind:           (payload[:kind] || 'human').to_s,
                 display_name:   payload[:display_name],
@@ -64,7 +68,7 @@ module Legion
                 updated_at:     now
               }
 
-              ds = ::Legion::Data::DB[:principals]
+              ds = ::Legion::Data::DB[:identity_principals]
               ds.insert_conflict(
                 target: %i[canonical_name kind],
                 update: { last_seen_at: now, updated_at: now }
@@ -78,9 +82,10 @@ module Legion
 
             def upsert_identity(payload, provider_id, principal_id, now)
               row = {
+                uuid:                  SecureRandom.uuid,
                 principal_id:          principal_id,
                 provider_id:           provider_id,
-                provider_identity:     payload[:provider_identity].to_s,
+                provider_identity_key: payload[:provider_identity].to_s,
                 active:                true,
                 last_authenticated_at: now,
                 created_at:            now,
@@ -88,9 +93,8 @@ module Legion
               }
 
               ::Legion::Data::DB[:identities].insert_conflict(
-                target:         %i[provider_id provider_identity],
-                conflict_where: { active: true },
-                update:         { last_authenticated_at: now, updated_at: now }
+                target: %i[principal_id provider_id provider_identity_key],
+                update: { last_authenticated_at: now, updated_at: now }
               ).insert(row)
             rescue StandardError => e
               Legion::Logging.error("[lex-identity-ledger] upsert_identity failed: #{e.message}") # rubocop:disable Legion/HelperMigration/DirectLogging

@@ -94,12 +94,12 @@ RSpec.configure do |config|
   end
 
   config.before do
-    # Delete child tables first to respect foreign key constraints
-    Legion::Data::DB[:identities].delete
-    Legion::Data::DB[:identity_group_memberships].delete
-    Legion::Data::DB[:identity_groups].delete
-    Legion::Data::DB[:identity_providers].delete
-    Legion::Data::DB[:principals].delete
     Legion::Data::DB[:audit_log].delete
+    Legion::Data::DB[:identity_audit_log].delete
+    Legion::Data::DB[:identity_group_memberships].delete
+    Legion::Data::DB[:identities].delete
+    Legion::Data::DB[:identity_groups].delete
+    Legion::Data::DB[:identity_principals].delete
+    Legion::Data::DB[:identity_providers].delete
   end
 end
